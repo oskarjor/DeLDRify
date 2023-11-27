@@ -13,6 +13,7 @@ class DiscriminatorForVGG(nn.Module):
             out_channels: int = 3,
             channels: int = 64,
     ) -> None:
+        self.out_channels = out_channels
         super(DiscriminatorForVGG, self).__init__()
         self.features = nn.Sequential(
             # input size. (3) x 128 x 128
