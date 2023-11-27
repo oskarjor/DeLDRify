@@ -1,5 +1,7 @@
 test.ipynb
 **/.DS_Store
+wandb/
+cache*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
