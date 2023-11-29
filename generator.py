@@ -61,9 +61,9 @@ class RRDBNet(nn.Module):
         self.RRDB_trunk = make_layer(RRDB_block_f, nb)
         self.trunk_conv = nn.Conv2d(nf, nf, 3, 1, 1, bias=True)
         #### upsampling
-        # self.upconv1 = nn.Conv2d(nf, nf, 3, 1, 1, bias=True)
-        # self.upconv2 = nn.Conv2d(nf, nf, 3, 1, 1, bias=True)
-        # self.HRconv = nn.Conv2d(nf, nf, 3, 1, 1, bias=True)
+        self.upconv1 = nn.Conv2d(nf*2, nf*2, 3, 1, 1, bias=True)
+        self.upconv2 = nn.Conv2d(nf*4, nf*4, 3, 1, 1, bias=True)
+        self.HRconv = nn.Conv2d(nf*4, nf, 3, 1, 1, bias=True)
 
         # TODO: convert the 64 channels to 4 channels (RGBE)
         self.conv_last = nn.Conv2d(nf, out_nc, 3, 1, 1, bias=True)
@@ -75,8 +75,28 @@ class RRDBNet(nn.Module):
         trunk = self.trunk_conv(self.RRDB_trunk(fea))
         fea = fea + trunk
 
-        # fea = self.lrelu(self.upconv1(F.interpolate(fea, scale_factor=2, mode='nearest')))
-        # fea = self.lrelu(self.upconv2(F.interpolate(fea, scale_factor=2, mode='nearest')))
-        out = self.conv_last(self.lrelu(fea))
+        keep_shapes = []
+        keep_shapes.append(int(fea.shape[-3]) * 2)
+        keep_shapes.append(int(fea.shape[-1]))
+
+        fea = fea.permute(0, 2, 1, 3)
+        fea = F.interpolate(fea, keep_shapes, mode='nearest')
+        fea = fea.permute(0, 2, 1, 3)
+        fea = self.lrelu(self.upconv1(fea))
+
+        keep_shapes[0] = keep_shapes[0] * 2
+        fea = fea.permute(0, 2, 1, 3)
+        fea = F.interpolate(fea, keep_shapes, mode='nearest')
+        fea = fea.permute(0, 2, 1, 3)
+        fea = self.lrelu(self.upconv2(fea))
+
+
+        out = self.conv_last(self.lrelu(self.HRconv(fea)))
 
         return out
+    
+if __name__ == '__main__':
+    net = RRDBNet(3, 3, 64, 23)
+    x = torch.randn(1, 3, 128, 128)
+    y = net(x)
+    print(y.shape)
