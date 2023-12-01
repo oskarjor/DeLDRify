@@ -2,30 +2,7 @@ from torch.utils.data import Dataset
 import os
 import cv2 as cv
 import numpy as np
-
-### Both functions requires channels last format
-
-# image: np.ndarray, shape = (..., 3) with values in [0, 4]
-def RGB_to_RGBE(image: np.ndarray):
-    max_float = np.max(image, axis=-1)
-    scale, exponent = np.frexp(max_float)
-    scale *= 256.0/max_float
-    image_rgbe = np.empty((*image.shape[:-1], 4))
-    image_rgbe[..., :3] = image * scale[..., np.newaxis]
-    image_rgbe[..., -1] = exponent + 128
-    image_rgbe[scale < 1e-32, :] = 0
-    image_rgbe /= 255
-    return image_rgbe.astype(np.float32)
-
-# image: np.ndarray, shape = (..., 4) with values in [0, 1]
-def RGBE_to_RGB(image: np.ndarray):
-    image *= 255
-    exponent = image[..., -1] - 128
-    scale = np.power(2, exponent)
-    image_rgb = np.empty((*image.shape[:-1], 3))
-    image_rgb = image[..., :3] * scale[..., np.newaxis]
-    image_rgb /= 256
-    return image_rgb.astype(np.float32)
+from utils import RGB_to_RGBE
 
 
 class PairWiseImagesRGBE(Dataset):
