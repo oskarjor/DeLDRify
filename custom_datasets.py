@@ -3,7 +3,9 @@ import os
 import cv2 as cv
 import numpy as np
 
-# requires channels last
+### Both functions requires channels last format
+
+# image: np.ndarray, shape = (..., 3) with values in [0, 4]
 def RGB_to_RGBE(image: np.ndarray):
     max_float = np.max(image, axis=-1)
     scale, exponent = np.frexp(max_float)
@@ -15,7 +17,7 @@ def RGB_to_RGBE(image: np.ndarray):
     image_rgbe /= 255
     return image_rgbe.astype(np.float32)
 
-
+# image: np.ndarray, shape = (..., 4) with values in [0, 1]
 def RGBE_to_RGB(image: np.ndarray):
     image *= 255
     exponent = image[..., -1] - 128
