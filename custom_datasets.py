@@ -13,7 +13,7 @@ def RGB_to_RGBE(image: np.ndarray):
     image_rgbe[..., -1] = exponent + 128
     image_rgbe[scale < 1e-32, :] = 0
     image_rgbe /= 255
-    return image_rgbe
+    return image_rgbe.astype(np.float32)
 
 
 def RGBE_to_RGB(image: np.ndarray):
