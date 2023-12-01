@@ -28,12 +28,13 @@ def RGBE_to_RGB(image: np.ndarray):
 
 class PairWiseImagesRGBE(Dataset):
 
-    def __init__(self, ldr_path, hdr_path, transform=None) -> None:
+    def __init__(self, ldr_path, hdr_path, transform=None, device = "cpu") -> None:
         self.ldr_path = ldr_path
         self.hdr_path = hdr_path
         self.transform = transform
         self.ldr_list = sorted(os.listdir(ldr_path))
         self.hdr_list = sorted(os.listdir(hdr_path))
+        self.device = device
 
     def __len__(self):
         return len(self.ldr_list)
@@ -49,16 +50,17 @@ class PairWiseImagesRGBE(Dataset):
         if self.transform:
             ldr_img = self.transform(ldr_img)
             hdr_img = self.transform(hdr_img)
-        return ldr_img, hdr_img
+        return ldr_img.to(self.device), hdr_img.to(self.device)
 
 class PairWiseImages(Dataset):
 
-    def __init__(self, ldr_path, hdr_path, transform=None) -> None:
+    def __init__(self, ldr_path, hdr_path, transform=None, device = "cpu") -> None:
         self.ldr_path = ldr_path
         self.hdr_path = hdr_path
         self.transform = transform
         self.ldr_list = sorted(os.listdir(ldr_path))
         self.hdr_list = sorted(os.listdir(hdr_path))
+        self.device = device
 
     def __len__(self):
         return len(self.ldr_list)
@@ -73,4 +75,4 @@ class PairWiseImages(Dataset):
         if self.transform:
             ldr_img = self.transform(ldr_img)
             hdr_img = self.transform(hdr_img)
-        return ldr_img, hdr_img
+        return ldr_img.to(self.device), hdr_img.to(self.device)
