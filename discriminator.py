@@ -129,7 +129,6 @@ class DiscriminatorForVGG2(nn.Module):
             out = feat(out)
         out = self.final_conv(out)
         out = torch.flatten(out, 1)
-        print(out.shape)
         out = self.classifier(out)
 
         return out
