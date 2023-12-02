@@ -77,6 +77,7 @@ class DiscriminatorForVGG2(nn.Module):
             channels: int = 64,
             depth: int = 4
     ) -> None:
+        assert depth >= 0 and depth <= 4, "depth must be in [0, 4]"
         self.out_channels = out_channels
         super(DiscriminatorForVGG2, self).__init__()
         self.first_conv = nn.Sequential(
@@ -103,8 +104,10 @@ class DiscriminatorForVGG2(nn.Module):
             nn.LeakyReLU(0.2, True), 
         )
 
+        space_dim = 2 ** (5 - depth)
+
         self.classifier = nn.Sequential(
-            nn.Linear(int(channels) * 4 * 4, 100),
+            nn.Linear(int(channels) * space_dim * space_dim, 100),
             nn.LeakyReLU(0.2, True),
             nn.Linear(100, out_channels)
         )
@@ -126,6 +129,7 @@ class DiscriminatorForVGG2(nn.Module):
             out = feat(out)
         out = self.final_conv(out)
         out = torch.flatten(out, 1)
+        print(out.shape)
         out = self.classifier(out)
 
         return out
