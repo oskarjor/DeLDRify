@@ -78,11 +78,12 @@ def RGB_to_RGBE(image: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: RGBE image with values in [0, 1] and shape (W, H, 4).
     """
-    max_float = np.max(image, axis=-1)
+    _image = image.copy()
+    max_float = np.max(_image, axis=-1)
     scale, exponent = np.frexp(max_float)
     scale *= 256.0/max_float
-    image_rgbe = np.empty((*image.shape[:-1], 4))
-    image_rgbe[..., :3] = image * scale[..., np.newaxis]
+    image_rgbe = np.empty((*_image.shape[:-1], 4))
+    image_rgbe[..., :3] = _image * scale[..., np.newaxis]
     image_rgbe[..., -1] = exponent + 128
     image_rgbe[scale < 1e-32, :] = 0
     image_rgbe /= 255
@@ -97,10 +98,12 @@ def RGBE_to_RGB(image: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: RGB image with values in [0, 4] and shape (W, H, 3).
     """
-    image *= 255
-    exponent = image[..., -1] - 128
+    _image = image.copy()
+    _image *= 255
+    exponent = _image[..., -1] - 128
     scale = np.power(2, exponent)
-    image_rgb = np.empty((*image.shape[:-1], 3))
-    image_rgb = image[..., :3] * scale[..., np.newaxis]
-    image_rgb /= 256
+    image_rgb = np.empty((*_image.shape[:-1], 3))
+    image_rgb = _image[..., :3] * scale[..., np.newaxis]
+    image_rgb /= 255
+    image_rgb = np.clip(image_rgb, 0, 4)
     return image_rgb.astype(np.float32)
