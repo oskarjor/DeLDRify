@@ -1,0 +1,2 @@
+Collection of images from the NTIRE 2021 competition. The LDR images are the medium exposed shots,
+while the HDR images are the groundtruth.
